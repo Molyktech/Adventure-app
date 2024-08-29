@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-image: linear-gradient(#e2fdf9, #c39fed, #8b6ce2 70%);
+
+  .question-container {
+    @apply p-5 transition-all duration-300 ease-in-out w-[600px] min-h-[200px] flex justify-center items-center bg-white rounded-md bg-clip-padding text-center relative font-normal
+    backdrop-filter backdrop-blur-md bg-opacity-40 border border-gray-100 rounded-tr-3xl rounded-bl-3xl;
+    clip-path: polygon(
+      30px 0%,
+      100% 0,
+      100% calc(100% - 30px),
+      calc(100% - 30px) 100%,
+      0 100%,
+      0% 30px
+    );
+    font-family: "Play", sans-serif;
+  }
+  app-button::after {
+    content: "";
+    // border: 3px dashed purple;
+    @apply h-40 w-2 border-4 border-dashed bg-transparent border-white border-spacing-4 block absolute -top-14 -z-20 left-[36%] right-0 m-auto;
+  }
+}

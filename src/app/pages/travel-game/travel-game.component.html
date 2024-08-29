@@ -1,1 +1,42 @@
-<p>travel-game works!</p>
+<div [@slideIn]="animationState">
+  <div class="flex flex-col gap-10" *ngIf="!gameEnded">
+    <div class="question-container" role="region" aria-live="polite">
+      <img
+        *ngIf="currentQuestion.image"
+        [src]="currentQuestion.image"
+        alt="Question Image"
+        class="question-image"
+      />
+      <h2>{{ currentQuestion.text }}</h2>
+    </div>
+
+    <div
+      class="mt-5 flex gap-3 items-center justify-center relative"
+      *ngIf="currentQuestion.choices && currentQuestion.choices.length > 0"
+    >
+      <app-button
+        *ngFor="let choice of currentQuestion.choices"
+        (click)="selectChoice(choice)"
+        [attr.aria-label]="'Choose ' + choice.label"
+        btnClass="button"
+      >
+        {{ choice.label }}
+      </app-button>
+    </div>
+  </div>
+  <div
+    *ngIf="gameEnded"
+    class="question-container flex flex-col gap-7"
+    role="region"
+    aria-live="polite"
+  >
+    <h2>{{ endMessage }}</h2>
+    <app-button
+      *ngIf="currentQuestion.choices.length === 0"
+      (click)="restartAdventure()"
+      aria-label="Restart Adventure"
+    >
+      Restart Adventure
+    </app-button>
+  </div>
+</div>

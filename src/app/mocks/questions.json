@@ -1,0 +1,243 @@
+[
+  {
+    "id": "start",
+    "text": "You're planning a getaway! Do you prefer a relaxing beach escape or an adventurous mountain retreat?",
+    "choices": [
+      { "label": "Relaxing Beach Escape", "nextQuestionId": "beach" },
+      { "label": "Adventurous Mountain Retreat", "nextQuestionId": "mountain" }
+    ]
+  },
+
+  {
+    "id": "beach",
+    "text": "At the beach Do you want to kick things off with an exotic gourmet dinner or by attending a vibrant local festival?",
+    "choices": [
+      { "label": "Exotic Gourmet Dinner", "nextQuestionId": "dinner" },
+      { "label": "Vibrant Local Festival", "nextQuestionId": "festival" }
+    ]
+  },
+  {
+    "id": "dinner",
+    "text": "During the dinner, you’re offered the choice to try a mysterious dish with unknown ingredients or stick to something familiar. Which do you choose?",
+    "choices": [
+      { "label": "Mysterious Dish", "nextQuestionId": "mystery_dish" },
+      { "label": "Familiar Dish", "nextQuestionId": "familiar_dish" }
+    ]
+  },
+  {
+    "id": "mystery_dish",
+    "text": "The mysterious dish turns out to be a rare delicacy, giving you an unforgettable experience. The chef has come to show appreciation for your palette and offers you two choices, Would you rather travel to a new destination every day or stay in one beautiful location for a month?",
+    "choices": [
+      {
+        "label": "New Destination Every Day",
+        "nextQuestionId": "travel_everyday"
+      },
+      { "label": "One Location for a Month", "nextQuestionId": "stay_month" }
+    ]
+  },
+  {
+    "id": "festival",
+    "text": "At the festival, you're invited to join a traditional dance or taste a rare local delicacy. What do you do?",
+    "choices": [
+      { "label": "Join the Dance", "nextQuestionId": "dance" },
+      { "label": "Taste the Delicacy", "nextQuestionId": "eat_free" }
+    ]
+  },
+  {
+    "id": "dance",
+    "text": "The dance is lively and fun, but exhausting and it seems you have sprained your leg. The local genie heals you for now but gives you to choices to be experienced at a later time, Would you rather get food poisoning while on a 10 hour bus journey or sprain your ankle at the start of a full day hike (and have to continue!)",
+    "choices": [
+      { "label": "Get Food Poisoning", "nextQuestionId": "hospital" },
+      { "label": "Sprain Ankle", "nextQuestionId": "forest" }
+    ]
+  },
+
+  {
+    "id": "mountain",
+    "text": "In the mountains, would you rather hike through lush forests or ski down snowy slopes?",
+    "choices": [
+      { "label": "Hiking Through Forests", "nextQuestionId": "forest" },
+      { "label": "Skiing Down Slopes", "nextQuestionId": "ski" }
+    ]
+  },
+  {
+    "id": "travel_everyday",
+    "text": "Would you rather have a week of perfect weather or a month of unpredictable but mostly pleasant weather?",
+    "choices": [
+      {
+        "label": "Week of Perfect Weather",
+        "nextQuestionId": "perfect_weather"
+      },
+      {
+        "label": "Month of Unpredictable Weather",
+        "nextQuestionId": "unpredictable_weather"
+      }
+    ]
+  },
+  {
+    "id": "stay_month",
+    "text": "Would you rather travel with limited access to WIFI or limited access to electricity?",
+    "choices": [
+      { "label": "Limited WIFI", "nextQuestionId": "limited_wifi" },
+      {
+        "label": "Limited Electricity",
+        "nextQuestionId": "limited_electricity"
+      }
+    ]
+  },
+  {
+    "id": "forest",
+    "text": "Sunrise or sunset views?",
+    "choices": [
+      { "label": "Sunrise Views", "nextQuestionId": "sunrise" },
+      { "label": "Sunset Views", "nextQuestionId": "sunset" }
+    ]
+  },
+  {
+    "id": "ski",
+    "text": "Would you rather splurge on first class flights and stay in budget accommodation, or buy the cheapest flight but stay in fancy accommodation?",
+    "choices": [
+      { "label": "Splurge on Flights", "nextQuestionId": "splurge_flights" },
+      {
+        "label": "Fancy Accommodation",
+        "nextQuestionId": "fancy_accommodation"
+      }
+    ]
+  },
+  {
+    "id": "perfect_weather",
+    "text": "Would you rather upgrade your hotel room to a suite or your flight to first class?",
+    "choices": [
+      { "label": "Hotel Suite", "nextQuestionId": "hotel_suite" },
+      { "label": "First Class Flight", "nextQuestionId": "first_class" }
+    ]
+  },
+  {
+    "id": "unpredictable_weather",
+    "text": "Would you rather be left behind in the bush on an African safari or in the water on a scuba trip?",
+    "choices": [
+      { "label": "Left Behind on Safari", "nextQuestionId": "safari" },
+      { "label": "Left Behind on Scuba", "nextQuestionId": "scuba" }
+    ]
+  },
+  {
+    "id": "limited_wifi",
+    "text": "Would you rather go on an all-expenses-paid trip to a small town in the Netherlands with your best friends or an all-expenses-paid trip to your dream destination with your frenemy?",
+    "choices": [
+      { "label": "Trip with Best Friends", "nextQuestionId": "friends_trip" },
+      { "label": "Trip with Frenemy", "nextQuestionId": "frenemy_trip" }
+    ]
+  },
+  {
+    "id": "limited_electricity",
+    "text": "Would you rather travel back in time to meet your ancestors or forward to meet your descendants?",
+    "choices": [
+      { "label": "Meet Ancestors", "nextQuestionId": "ancestors" },
+      { "label": "Meet Descendants", "nextQuestionId": "descendants" }
+    ]
+  },
+  {
+    "id": "sunrise",
+    "text": "Would you rather travel along the ocean floor or take a trip to outer space?",
+    "choices": [
+      { "label": "Ocean Floor", "nextQuestionId": "ocean_floor" },
+      { "label": "Outer Space", "nextQuestionId": "outer_space" }
+    ]
+  },
+  {
+    "id": "sunset",
+    "text": "Would you rather fly free forever or eat for free forever?",
+    "choices": [
+      { "label": "Fly Free", "nextQuestionId": "fly_free" },
+      { "label": "Eat Free", "nextQuestionId": "eat_free" }
+    ]
+  },
+  {
+    "id": "splurge_flights",
+    "text": "Would you rather travel with a personal photographer or a personal chef?",
+    "choices": [
+      { "label": "Personal Photographer", "nextQuestionId": "photographer" },
+      { "label": "Personal Chef", "nextQuestionId": "chef" }
+    ]
+  },
+  {
+    "id": "fancy_accommodation",
+    "text": "Your choices have led you to the perfect destination. Based on your love for comfort and adventure, your ideal getaway is in Bali, where you can enjoy luxury and culture.",
+    "choices": []
+  },
+  {
+    "id": "hotel_suite",
+    "text": "Your love for relaxation and the finer things points to the Maldives as your perfect escape.",
+    "choices": []
+  },
+  {
+    "id": "first_class",
+    "text": "Your preference for the high life makes Dubai your ideal destination, where luxury meets adventure.",
+    "choices": []
+  },
+  {
+    "id": "safari",
+    "text": "You love adventure and nature, so an African safari in Kenya is perfect for you.",
+    "choices": []
+  },
+  {
+    "id": "scuba",
+    "text": "Your adventurous spirit is leading you to the Great Barrier Reef in Australia, where underwater exploration awaits.",
+    "choices": []
+  },
+  {
+    "id": "friends_trip",
+    "text": "Your close-knit nature makes a trip to Amsterdam with friends the ideal getaway.",
+    "choices": []
+  },
+  {
+    "id": "frenemy_trip",
+    "text": "Your adventurous side means you can handle any challenge, including traveling with a frenemy. Your destination is New York City, where there's always something new to discover.",
+    "choices": []
+  },
+  {
+    "id": "ancestors",
+    "text": "Your connection to the past makes Athens, Greece, a great destination for you, rich in history and culture.",
+    "choices": []
+  },
+  {
+    "id": "descendants",
+    "text": "Your forward-thinking nature leads you to Tokyo, Japan, a city that's always on the cutting edge.",
+    "choices": []
+  },
+  {
+    "id": "ocean_floor",
+    "text": "You’re drawn to the mysteries of the ocean, so the Maldives is your perfect underwater paradise.",
+    "choices": []
+  },
+  {
+    "id": "outer_space",
+    "text": "Your adventurous nature points to a future space exploration trip. Until then, you can satisfy your curiosity in the deserts of Arizona, where the stars shine brightest.",
+    "choices": []
+  },
+  {
+    "id": "fly_free",
+    "text": "Your love for travel and exploration suggests a world tour is in your future, with no limits on where you can go.",
+    "choices": []
+  },
+  {
+    "id": "eat_free",
+    "text": "You’re a foodie at heart, so your ideal destination is Italy, where culinary delights await at every corner.",
+    "choices": []
+  },
+  {
+    "id": "photographer",
+    "text": "Your love for capturing memories makes Paris, France, your ideal destination, where every moment is picture-perfect.",
+    "choices": []
+  },
+  {
+    "id": "chef",
+    "text": "Your passion for food makes Mexico City your perfect destination, where flavors come alive.",
+    "choices": []
+  },
+  {
+    "id": "hospital",
+    "text": "You are at the hospital, satisfied but curious about what you missed. Your choice leads you to New Zealand, where adventure and relaxation blend perfectly.",
+    "choices": []
+  }
+]
