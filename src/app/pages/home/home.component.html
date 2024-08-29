@@ -1,1 +1,26 @@
-<p>home works!</p>
+<div
+  class="card flex items-center justify-between gap-5 xl:max-w-[1200px] p-7 bg-[#99E3FE] bg-clip-padding backdrop-filter backdrop-blur-lg bg-opacity-40 border border-gray-100 border-opacity-25 rounded-lg mx-5 xl:mx-1"
+>
+  <div class="flex flex-col justify-between gap-8">
+    <div>
+      <h1 class="app-title">Discover Your Perfect Adventure!</h1>
+      <p class="app-description">
+        Welcome to the ultimate travel adventure game where your choices reveal
+        the type of explorer you are! Answer a series of fun and challenging
+        questions that will guide you through different travel scenarios. With
+        each decision you make, you'll uncover more about your ideal adventure
+        style and the perfect destination tailored just for you.
+
+        <strong>Are you ready to embark on this journey?</strong> Let your
+        choices lead the way to your dream getaway!
+      </p>
+    </div>
+    <a [routerLink]="['/adventure']"> <app-button>Play Now</app-button></a>
+  </div>
+
+  <!-- <img
+    src="/assets/images/flat-travel-background.png"
+    alt="Adventure Game"
+    class="w-[220px] h-[200px] hidden md:block"
+  /> -->
+</div>
