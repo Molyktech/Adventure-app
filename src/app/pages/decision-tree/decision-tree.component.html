@@ -1,1 +1,44 @@
-<p>decision-tree works!</p>
+<div class="flex justify-center p-4 relative">
+  <div class="node node__root" *ngIf="nodes !== undefined">
+    <div
+      class="node__element"
+      [ngClass]="{ 'is-selected': path.includes(nodes.id) }"
+    >
+      {{ nodes.text }}
+    </div>
+    <div class="node__bottom-line"></div>
+    <div class="node__children">
+      <div class="node" *ngFor="let child of nodes.choices">
+        <ng-container
+          *ngTemplateOutlet="nodeTemplate; context: { $implicit: child }"
+        ></ng-container>
+      </div>
+    </div>
+
+    <ng-template #nodeTemplate let-node>
+      <div class="node">
+        <div
+          class="node__element"
+          [ngClass]="{ 'is-selected': path.includes(node.questionId) }"
+        >
+          {{ node.label }}
+        </div>
+        <div class="node__bottom-line"></div>
+        <div
+          class="node__element"
+          [ngClass]="{ 'is-selected': path.includes(node.questionId) }"
+        >
+          {{ node.text }}
+        </div>
+        <div class="node__bottom-line"></div>
+        <div class="node__children" *ngIf="node.choices && node.choices.length">
+          <ng-container *ngFor="let child of node.choices">
+            <ng-container
+              *ngTemplateOutlet="nodeTemplate; context: { $implicit: child }"
+            ></ng-container>
+          </ng-container>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>

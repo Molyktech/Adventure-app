@@ -1,0 +1,62 @@
+:host {
+  @apply w-full h-full;
+
+  @apply flex justify-center items-center flex-col w-full max-w-full mx-auto;
+
+  .node {
+    @apply relative px-4 pb-4 text-center flex flex-col items-center;
+
+    &.node__root {
+      @apply flex flex-col items-center;
+    }
+  }
+
+  .node {
+    .node__element {
+      @apply max-w-[250px] min-w-36 bg-white rounded-2xl py-1 px-2 text-base text-center leading-8 hover:bg-green-400;
+      word-wrap: break-word;
+      &.is-selected {
+        @apply bg-pink-800;
+      }
+
+      &:hover ~ .node__children .node__element::before {
+        @apply w-0.5 bg-green-400;
+      }
+
+      &:hover ~ .node__children,
+      &:hover ~ .node__children .node__children {
+        @apply border-t-2 border-green-400;
+      }
+
+      &:hover ~ .node__bottom-line,
+      &:hover ~ .node__children .node__bottom-line {
+        @apply w-0.5 bg-green-400 -z-10;
+      }
+    }
+    &:not(.node__root) .node__element:not(:last-child)::before {
+      content: "";
+      @apply h-10 w-[1px] bg-white block absolute -top-5 left-0 right-0 m-auto -z-10;
+    }
+
+    .node__children {
+      @apply flex p-5 border-t-cyan-100 border-t;
+    }
+
+    .node__bottom-line:not(:last-child) {
+      @apply h-5 w-[1px] bg-cyan-100;
+    }
+
+    .node__element,
+    .node__element::before,
+    .node__children,
+    .node__bottom-line {
+      transition: all ease 0.3s;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .node__children {
+      @apply flex-wrap;
+    }
+  }
+}
