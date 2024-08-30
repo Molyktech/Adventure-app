@@ -2,54 +2,47 @@
   [@slideIn]="animationState"
   class="flex flex-col items-center gap-10 h-full w-full"
 >
-  <div class="flex flex-col items-center gap-10" *ngIf="!gameEnded">
-    <div class="question-container" role="region" aria-live="polite">
-      <img
-        *ngIf="currentQuestion.image"
-        [src]="currentQuestion.image"
-        alt="Question Image"
-        class="question-image"
-      />
-      <h2>{{ currentQuestion.text }}</h2>
+  @if (!gameEnded) {
+    <div class="flex flex-col items-center gap-10">
+      <div class="question-container" role="region" aria-live="polite">
+        <h2>{{ currentQuestion.text }}</h2>
+      </div>
+      @if (currentQuestion.choices && currentQuestion.choices.length > 0) {
+        <div class="button-container">
+          @for (choice of currentQuestion.choices; track choice.label) {
+            <app-button
+              (click)="selectChoice(choice)"
+              [attr.aria-label]="'Choose ' + choice.label"
+              btnClass="button"
+            >
+              {{ choice.label }}
+            </app-button>
+          }
+        </div>
+      }
     </div>
+  } @else {
+    <div class="flex flex-col items-center gap-y-7">
+      <div class="question-container flex flex-col gap-7">
+        <h2>{{ endMessage }}</h2>
+        @if (currentQuestion.choices.length === 0) {
+          <app-button
+            (click)="restartAdventure()"
+            aria-label="Restart Adventure"
+          >
+            Restart Adventure
+          </app-button>
+        }
+      </div>
 
-    <div
-      class="button-container"
-      *ngIf="currentQuestion.choices && currentQuestion.choices.length > 0"
-    >
-      <app-button
-        *ngFor="let choice of currentQuestion.choices"
-        (click)="selectChoice(choice)"
-        [attr.aria-label]="'Choose ' + choice.label"
-        btnClass="button"
-      >
-        {{ choice.label }}
-      </app-button>
+      <div class="flex items-center flex-col w-full px-5 overflow-x-auto">
+        <h2 class="text-center text-5xl">Decision Tree</h2>
+        <app-decision-tree
+          [questions]="questions"
+          [path]="answeredQuestions | async"
+          [questionStartKey]="questionStartKey"
+        ></app-decision-tree>
+      </div>
     </div>
-  </div>
-
-  <div class="flex flex-col items-center gap-y-7" *ngIf="gameEnded">
-    <div
-      class="question-container flex flex-col gap-7"
-      role="region"
-      aria-live="polite"
-    >
-      <h2>{{ endMessage }}</h2>
-      <app-button
-        *ngIf="currentQuestion.choices.length === 0"
-        (click)="restartAdventure()"
-        aria-label="Restart Adventure"
-      >
-        Restart Adventure
-      </app-button>
-    </div>
-
-    <div class="flex items-center flex-col w-full px-5 overflow-x-auto">
-      <h2 class="text-center text-5xl">Decision Tree</h2>
-      <app-decision-tree
-        [questions]="questions"
-        [path]="path"
-      ></app-decision-tree>
-    </div>
-  </div>
+  }
 </div>

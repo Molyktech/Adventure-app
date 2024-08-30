@@ -9,9 +9,7 @@
     &.node__root {
       @apply flex flex-col items-center;
     }
-  }
 
-  .node {
     .node__element {
       @apply max-w-[250px] min-w-36 bg-white rounded-2xl py-1 px-2 text-base text-center leading-8 hover:bg-green-400;
       word-wrap: break-word;

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { APPLICATION_ROUTES } from './constants/routes';
 
 export const routes: Routes = [
   {
@@ -8,7 +9,7 @@ export const routes: Routes = [
   },
 
   {
-    path: 'adventure',
+    path: APPLICATION_ROUTES.ADVENTURE,
     loadComponent: () =>
       import('./pages/travel-game/travel-game.component').then(
         (m) => m.TravelGameComponent,

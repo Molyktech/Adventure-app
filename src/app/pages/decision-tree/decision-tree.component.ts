@@ -14,14 +14,13 @@ import { CommonModule } from '@angular/common';
   styleUrl: './decision-tree.component.scss',
 })
 export class DecisionTreeComponent implements OnInit {
-  @Input() questions: Record<string, IQuestion> = {};
-  @Input() path: string[] = [];
+  @Input({ required: true }) questions: Record<string, IQuestion> = {};
+  @Input({ required: true }) path: string[] | null = [];
   nodes!: IQuestion;
-  questionStartKey = 'start';
+  @Input({ required: true }) questionStartKey = '';
 
   ngOnInit(): void {
     this.nodes = this.buildQuestionTree(this.questions);
-    console.log('path', this.path, this.nodes);
   }
 
   buildQuestionTree(questions: Record<string, IQuestion>): IQuestion {
@@ -64,5 +63,9 @@ export class DecisionTreeComponent implements OnInit {
         };
       })
       .filter((choice) => choice !== undefined);
+  }
+
+  isSelected(nodeId: string): boolean {
+    return (this.path?.length && this.path.includes(nodeId)) || false;
   }
 }

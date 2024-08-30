@@ -1,9 +1,5 @@
 :host {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-
+  @apply flex items-center justify-center min-h-screen;
   background: url("https://img.freepik.com/free-vector/summer-background-with-palm-trees-birds-sunset_23-2147818840.jpg?t=st=1724953673~exp=1724957273~hmac=90ab3dd4e109b555dd6db4eba1d63bb983611bb9951cf51e9ad873bf89a1aa0c&w=1380")
     center / cover no-repeat fixed;
 

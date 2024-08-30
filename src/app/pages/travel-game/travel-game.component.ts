@@ -1,16 +1,24 @@
-import { Component, OnInit } from '@angular/core';
 import {
-  trigger,
+  animate,
   state,
   style,
   transition,
-  animate,
+  trigger,
 } from '@angular/animations';
-import { GameService } from '../../core/services/game.service';
-import { IChoice, IQuestion } from '../../utils/models/questions';
 import { CommonModule } from '@angular/common';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { Store } from '@ngxs/store';
 import { ButtonComponent } from '../../components/button/button.component';
+import {
+  GetGameQuestions,
+  ResetAnsweredQuestion,
+  UpdateAnsweredQuestion,
+} from '../../store/game/game.actions';
+import { GameSelectors } from '../../store/game/game.queries';
+import { IChoice, IQuestion } from '../../utils/models/questions';
 import { DecisionTreeComponent } from '../decision-tree/decision-tree.component';
+import { Observable } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-travel-game',
@@ -39,6 +47,8 @@ import { DecisionTreeComponent } from '../decision-tree/decision-tree.component'
   ],
 })
 export class TravelGameComponent implements OnInit {
+  private _store = inject(Store);
+  private _destroyRef = inject(DestroyRef);
   questions!: Record<string, IQuestion>;
   // clickSound = new Audio('assets/sounds/click.mp3');
   // successSound = new Audio('assets/sounds/success.mp3');
@@ -47,22 +57,28 @@ export class TravelGameComponent implements OnInit {
   animationState = 'hidden';
   gameEnded = false;
   endMessage = '';
-  path: string[] = []; // To track user's choices
-  questionStartKey = 'start';
-
-  constructor(private gameService: GameService) {}
+  questionStartKey = '';
+  answeredQuestions!: Observable<string[]>;
 
   ngOnInit(): void {
-    this.gameService.loadQuestions().subscribe((questions) => {
-      this.questions = questions.reduce(
-        (acc, question) => ({
-          ...acc,
-          [question.id]: question,
-        }),
-        {} as Record<string, IQuestion>,
-      );
-    });
+    this._store.dispatch(new GetGameQuestions());
+    this._store
+      .select(GameSelectors.getFormattedQuestions)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((formattedQuestions) => {
+        this.questions = formattedQuestions;
+      });
+    this._store
+      .select(GameSelectors.getStartQuestionId)
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((startQuestionId) => {
+        this.questionStartKey = startQuestionId;
+      });
+
     this.restartAdventure();
+    this.answeredQuestions = this._store.select(
+      GameSelectors.getAnsweredQuestions,
+    );
   }
 
   loadQuestion(id: number | string): void {
@@ -81,9 +97,10 @@ export class TravelGameComponent implements OnInit {
 
   selectChoice(choice: IChoice): void {
     // this.clickSound.play();
-    // this.path.push(choice.label);
-    this.path.push(
-      `${this.currentQuestion.id}-${choice.nextQuestionId}` as string,
+    this._store.dispatch(
+      new UpdateAnsweredQuestion(
+        `${this.currentQuestion.id}-${choice.nextQuestionId}`,
+      ),
     );
 
     if (choice.nextQuestionId) {
@@ -105,8 +122,10 @@ export class TravelGameComponent implements OnInit {
   }
 
   restartAdventure(): void {
-    this.path = [];
-    this.path.push(this.questionStartKey);
+    //clear answered questions from store
+    this._store.dispatch(new ResetAnsweredQuestion());
+    // add the game start question to the answered questions
+    this._store.dispatch(new UpdateAnsweredQuestion(this.questionStartKey));
     this.loadQuestion(this.questionStartKey);
   }
 }
