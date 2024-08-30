@@ -10,6 +10,7 @@ import {
 } from '@ngxs/storage-plugin';
 import { provideStore } from '@ngxs/store';
 import { provideHttpClient } from '@angular/common/http';
+import { GameState } from './store/game/game.state';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,7 +19,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideHttpClient(),
     provideStore(
-      [],
+      [GameState],
       withNgxsReduxDevtoolsPlugin(),
       withNgxsLoggerPlugin(),
       withNgxsStoragePlugin({ keys: '*' } as NgxsStoragePluginOptions),

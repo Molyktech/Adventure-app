@@ -1,3 +1,7 @@
+export interface IGameServerResponse {
+  startId: string;
+  questions: IQuestion[];
+}
 export interface IChoice {
   label: string;
   nextQuestionId: string;
