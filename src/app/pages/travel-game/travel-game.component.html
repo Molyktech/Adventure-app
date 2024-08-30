@@ -1,5 +1,8 @@
-<div [@slideIn]="animationState">
-  <div class="flex flex-col gap-10" *ngIf="!gameEnded">
+<div
+  [@slideIn]="animationState"
+  class="flex flex-col items-center gap-10 h-full w-full"
+>
+  <div class="flex flex-col items-center gap-10" *ngIf="!gameEnded">
     <div class="question-container" role="region" aria-live="polite">
       <img
         *ngIf="currentQuestion.image"
@@ -11,7 +14,7 @@
     </div>
 
     <div
-      class="mt-5 flex gap-3 items-center justify-center relative"
+      class="button-container"
       *ngIf="currentQuestion.choices && currentQuestion.choices.length > 0"
     >
       <app-button
@@ -24,19 +27,29 @@
       </app-button>
     </div>
   </div>
-  <div
-    *ngIf="gameEnded"
-    class="question-container flex flex-col gap-7"
-    role="region"
-    aria-live="polite"
-  >
-    <h2>{{ endMessage }}</h2>
-    <app-button
-      *ngIf="currentQuestion.choices.length === 0"
-      (click)="restartAdventure()"
-      aria-label="Restart Adventure"
+
+  <div class="flex flex-col items-center gap-y-7" *ngIf="gameEnded">
+    <div
+      class="question-container flex flex-col gap-7"
+      role="region"
+      aria-live="polite"
     >
-      Restart Adventure
-    </app-button>
+      <h2>{{ endMessage }}</h2>
+      <app-button
+        *ngIf="currentQuestion.choices.length === 0"
+        (click)="restartAdventure()"
+        aria-label="Restart Adventure"
+      >
+        Restart Adventure
+      </app-button>
+    </div>
+
+    <div class="flex items-center flex-col w-full px-5 overflow-x-auto">
+      <h2 class="text-center text-5xl">Decision Tree</h2>
+      <app-decision-tree
+        [questions]="questions"
+        [path]="path"
+      ></app-decision-tree>
+    </div>
   </div>
 </div>

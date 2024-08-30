@@ -1,12 +1,13 @@
 :host {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply flex items-center justify-center  w-full p-5;
   min-height: 100vh;
-  background-image: linear-gradient(#e2fdf9, #c39fed, #8b6ce2 70%);
+  background: url("https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
+    center / cover no-repeat fixed;
+  font-family: "Play", sans-serif;
+  // background-image: linear-gradient(#e2fdf9, #c39fed, #8b6ce2 70%);
 
   .question-container {
-    @apply p-5 transition-all duration-300 ease-in-out w-[600px] min-h-[200px] flex justify-center items-center bg-white rounded-md bg-clip-padding text-center relative font-normal
+    @apply p-5 transition-all duration-300 ease-in-out md:w-[600px] min-h-[200px] flex justify-center items-center bg-white rounded-md bg-clip-padding text-center relative font-normal z-40
     backdrop-filter backdrop-blur-md bg-opacity-40 border border-gray-100 rounded-tr-3xl rounded-bl-3xl;
     clip-path: polygon(
       30px 0%,
@@ -16,11 +17,27 @@
       0 100%,
       0% 30px
     );
-    font-family: "Play", sans-serif;
   }
-  app-button::after {
-    content: "";
-    // border: 3px dashed purple;
-    @apply h-40 w-2 border-4 border-dashed bg-transparent border-white border-spacing-4 block absolute -top-14 -z-20 left-[36%] right-0 m-auto;
+  .button-container {
+    @apply mt-5 flex flex-wrap gap-4 items-center justify-center relative;
+
+    @screen sm {
+      app-button::after {
+        @apply content-[''] h-60 w-2 border-[6px] border-dashed rounded-sm bg-transparent border-white  block absolute -top-14 -z-20 left-[45%] right-0 m-auto;
+        background: linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 1),
+          rgba(255, 255, 255, 0)
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          rgba(0, 0, 0, 1),
+          rgba(0, 0, 0, 0)
+        );
+      }
+      app-button:not(:last-child)::after {
+        @apply -left-[55%];
+      }
+    }
   }
 }

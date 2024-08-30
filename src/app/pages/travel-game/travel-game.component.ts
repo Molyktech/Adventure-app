@@ -10,11 +10,12 @@ import { GameService } from '../../core/services/game.service';
 import { IChoice, IQuestion } from '../../utils/models/questions';
 import { CommonModule } from '@angular/common';
 import { ButtonComponent } from '../../components/button/button.component';
+import { DecisionTreeComponent } from '../decision-tree/decision-tree.component';
 
 @Component({
   selector: 'app-travel-game',
   standalone: true,
-  imports: [CommonModule, ButtonComponent],
+  imports: [CommonModule, ButtonComponent, DecisionTreeComponent],
   templateUrl: './travel-game.component.html',
   styleUrl: './travel-game.component.scss',
   animations: [
