@@ -1,8 +1,7 @@
 :host {
   @apply flex items-center justify-center  w-full p-5;
   min-height: 100vh;
-  background: url("https://images.unsplash.com/photo-1618556450994-a6a128ef0d9d?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
-    center / cover no-repeat fixed;
+  background: url("/assets/images/game-bg.webp") center / cover no-repeat fixed;
   font-family: "Play", sans-serif;
 
   .question-container {

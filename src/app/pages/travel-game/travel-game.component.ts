@@ -6,7 +6,13 @@ import {
   trigger,
 } from '@angular/animations';
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  OnDestroy,
+  OnInit,
+  inject,
+} from '@angular/core';
 import { Store } from '@ngxs/store';
 import { ButtonComponent } from '../../components/button/button.component';
 import {
@@ -46,13 +52,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
     ]),
   ],
 })
-export class TravelGameComponent implements OnInit {
+export class TravelGameComponent implements OnInit, OnDestroy {
   private _store = inject(Store);
   private _destroyRef = inject(DestroyRef);
   questions!: Record<string, IQuestion>;
-  // clickSound = new Audio('assets/sounds/click.mp3');
-  // successSound = new Audio('assets/sounds/success.mp3');
-  // failSound = new Audio('assets/sounds/fail.mp3');
+  clickSound = new Audio('assets/sounds/click.wav');
   currentQuestion: IQuestion = { id: '', text: '', choices: [] };
   animationState = 'hidden';
   gameEnded = false;
@@ -96,7 +100,7 @@ export class TravelGameComponent implements OnInit {
   }
 
   selectChoice(choice: IChoice): void {
-    // this.clickSound.play();
+    this.clickSound.play();
     this._store.dispatch(
       new UpdateAnsweredQuestion(
         `${this.currentQuestion.id}-${choice.nextQuestionId}`,
@@ -109,7 +113,6 @@ export class TravelGameComponent implements OnInit {
       // No next question, end of game
       this.gameEnded = true;
       this.endMessage = 'Thank you for playing!';
-      // this.successSound.play();
     }
   }
 
@@ -127,5 +130,9 @@ export class TravelGameComponent implements OnInit {
     // add the game start question to the answered questions
     this._store.dispatch(new UpdateAnsweredQuestion(this.questionStartKey));
     this.loadQuestion(this.questionStartKey);
+  }
+
+  ngOnDestroy(): void {
+    this.clickSound.pause();
   }
 }

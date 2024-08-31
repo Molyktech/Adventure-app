@@ -14,7 +14,7 @@
       @apply max-w-[250px] min-w-36 bg-white rounded-2xl py-1 px-2 text-base text-center leading-8 hover:bg-green-400;
       word-wrap: break-word;
       &.is-selected {
-        @apply bg-pink-800;
+        @apply bg-cyan-400;
       }
 
       &:hover ~ .node__children .node__element::before {
