@@ -31,4 +31,14 @@ export class GameSelectors {
     [GameSelectors.getSlices.answeredQuestions],
     (state) => state,
   );
+
+  static getCurrentQuestion = createSelector(
+    [GameSelectors.getSlices.currentQuestion],
+    (currentQuestion) => currentQuestion,
+  );
+
+  static getGameStatus = createSelector(
+    [GameSelectors.getSlices.gameEnded],
+    (gameEnded) => gameEnded,
+  );
 }

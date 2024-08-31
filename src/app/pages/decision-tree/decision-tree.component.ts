@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import {
   IChoice,
   IMappedChoice,
+  IMappedQuestion,
   IQuestion,
 } from '../../utils/models/questions';
 import { CommonModule } from '@angular/common';
@@ -16,16 +17,17 @@ import { CommonModule } from '@angular/common';
 export class DecisionTreeComponent implements OnInit {
   @Input({ required: true }) questions: Record<string, IQuestion> = {};
   @Input({ required: true }) path: string[] | null = [];
-  nodes!: IQuestion;
+  nodes!: IMappedQuestion;
   @Input({ required: true }) questionStartKey = '';
 
   ngOnInit(): void {
     this.nodes = this.buildQuestionTree(this.questions);
+    console.log('nodes', this.nodes);
   }
 
-  buildQuestionTree(questions: Record<string, IQuestion>): IQuestion {
+  buildQuestionTree(questions: Record<string, IQuestion>): IMappedQuestion {
     const startQuestion = questions[this.questionStartKey];
-    const result: IQuestion = {
+    const result: IMappedQuestion = {
       id: startQuestion.id,
       text: startQuestion.text,
       choices: this.buildChoicesTree(
@@ -40,7 +42,7 @@ export class DecisionTreeComponent implements OnInit {
 
   buildChoicesTree(
     questions: Record<string, IQuestion>,
-    choices: IChoice[],
+    choices: IChoice[] | IMappedChoice[],
     selectedQuestionId: string,
   ): IMappedChoice[] {
     return choices
@@ -64,6 +66,11 @@ export class DecisionTreeComponent implements OnInit {
       })
       .filter((choice) => choice !== undefined);
   }
+  /**
+   * Helper method to check if a node is part of the selected path.
+   * @param nodeId - The ID of the node to check.
+   * @returns A boolean indicating if the node is selected.
+   */
 
   isSelected(nodeId: string): boolean {
     return (this.path?.length && this.path.includes(nodeId)) || false;

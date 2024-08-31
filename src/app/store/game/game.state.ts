@@ -3,6 +3,8 @@ import { State, Action, Selector, StateContext } from '@ngxs/store';
 import {
   GetGameQuestions,
   ResetAnsweredQuestion,
+  SetCurrentQuestion,
+  SetGameStatus,
   UpdateAnsweredQuestion,
 } from './game.actions';
 import { IQuestion } from '../../utils/models/questions';
@@ -13,6 +15,8 @@ export interface GameStateModel {
   questions: IQuestion[];
   answeredQuestions: string[];
   startQuestionId: string;
+  currentQuestion: IQuestion | null;
+  gameEnded: boolean;
 }
 
 @State<GameStateModel>({
@@ -21,6 +25,8 @@ export interface GameStateModel {
     questions: [],
     answeredQuestions: [],
     startQuestionId: '',
+    currentQuestion: null,
+    gameEnded: false,
   },
 })
 @Injectable()
@@ -61,6 +67,26 @@ export class GameState {
   async resetAnsweredQuestion(ctx: StateContext<GameStateModel>) {
     ctx.patchState({
       answeredQuestions: [],
+    });
+  }
+
+  @Action(SetCurrentQuestion)
+  async setCurrentQuestion(
+    ctx: StateContext<GameStateModel>,
+    { question }: SetCurrentQuestion,
+  ) {
+    ctx.patchState({
+      currentQuestion: question,
+    });
+  }
+
+  @Action(SetGameStatus)
+  async SetGameStatus(
+    ctx: StateContext<GameStateModel>,
+    { status }: SetGameStatus,
+  ) {
+    ctx.patchState({
+      gameEnded: status,
     });
   }
 }

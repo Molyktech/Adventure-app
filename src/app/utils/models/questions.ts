@@ -22,3 +22,9 @@ export interface IMappedChoice {
   nextQuestionId: string;
   choices: IChoice[];
 }
+
+export interface IMappedQuestion {
+  id: string;
+  text: string;
+  choices: IMappedChoice[];
+}

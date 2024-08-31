@@ -1,48 +1,48 @@
-<div
-  [@slideIn]="animationState"
-  class="flex flex-col items-center gap-10 px-5 h-full w-full"
->
-  @if (!gameEnded) {
-    <div class="flex flex-col items-center gap-10">
-      <div class="question-container" role="region" aria-live="polite">
-        <h2>{{ currentQuestion.text }}</h2>
+<div class="game-page">
+  <div
+    [@slideIn]="animationState"
+    class="flex flex-col items-center gap-10 px-5 h-full w-full"
+  >
+    @if ((gameEnded$ | async) !== true) {
+      <div class="flex flex-col items-center gap-10">
+        <div class="question-container" role="region" aria-live="polite">
+          <h2>{{ currentQuestion.text }}</h2>
+        </div>
+        @if (currentQuestion.choices && currentQuestion.choices.length > 0) {
+          <div class="button-container">
+            @for (choice of currentQuestion.choices; track choice.label) {
+              <app-button
+                (click)="selectChoice(choice)"
+                [attr.aria-label]="'Choose ' + choice.label"
+                btnClass="button"
+              >
+                {{ choice.label }}
+              </app-button>
+            }
+          </div>
+        }
       </div>
-      @if (currentQuestion.choices && currentQuestion.choices.length > 0) {
-        <div class="button-container">
-          @for (choice of currentQuestion.choices; track choice.label) {
+    } @else {
+      <div class="flex flex-col items-center gap-y-7">
+        <div class="question-container flex flex-col gap-7">
+          <h2>{{ endMessage }}</h2>
+          @if (currentQuestion.choices.length === 0) {
             <app-button
-              (click)="selectChoice(choice)"
-              [attr.aria-label]="'Choose ' + choice.label"
-              btnClass="button"
+              (click)="restartAdventure()"
+              aria-label="Restart Adventure"
             >
-              {{ choice.label }}
+              Restart Adventure
             </app-button>
           }
         </div>
-      }
-    </div>
-  } @else {
-    <div class="flex flex-col items-center gap-y-7">
-      <div class="question-container flex flex-col gap-7">
-        <h2>{{ endMessage }}</h2>
-        @if (currentQuestion.choices.length === 0) {
-          <app-button
-            (click)="restartAdventure()"
-            aria-label="Restart Adventure"
-          >
-            Restart Adventure
-          </app-button>
-        }
       </div>
-
-      <div class="flex items-center flex-col w-full px-5 overflow-x-auto">
-        <h2 class="text-center text-5xl">Decision Tree</h2>
+      <div class="w-full">
         <app-decision-tree
           [questions]="questions"
-          [path]="answeredQuestions | async"
+          [path]="answeredQuestions$ | async"
           [questionStartKey]="questionStartKey"
         ></app-decision-tree>
       </div>
-    </div>
-  }
+    }
+  </div>
 </div>

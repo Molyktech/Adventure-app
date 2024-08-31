@@ -1,6 +1,6 @@
-:host {
-  @apply flex items-center justify-center  w-full p-5;
-  min-height: 100vh;
+.game-page {
+  @apply w-full p-5 min-h-screen flex items-center overflow-x-auto;
+
   background: url("/assets/images/game-bg.webp") center / cover no-repeat fixed;
   font-family: "Play", sans-serif;
 

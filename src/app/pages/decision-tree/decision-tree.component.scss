@@ -1,24 +1,28 @@
 :host {
-  @apply w-full h-full;
-
-  @apply flex justify-center items-center flex-col w-full max-w-full mx-auto;
-
+  @apply w-full flex;
   .node {
-    @apply relative px-4 pb-4 text-center flex flex-col items-center;
+    @apply relative px-4 pb-4 text-center flex flex-col items-center justify-start;
 
     &.node__root {
       @apply flex flex-col items-center;
     }
 
     .node__element {
-      @apply max-w-[250px] min-w-36 bg-white rounded-2xl py-1 px-2 text-base text-center leading-8 hover:bg-green-400;
+      @apply max-w-[250px] min-w-36 bg-white rounded-2xl py-1 px-2 text-sm text-center leading-8 hover:bg-green-400;
       word-wrap: break-word;
+
       &.is-selected {
         @apply bg-cyan-400;
       }
 
       &:hover ~ .node__children .node__element::before {
         @apply w-0.5 bg-green-400;
+      }
+
+      &:hover ~ .node__element,
+      &:hover ~ .node__element .node__children,
+      &:hover ~ .node__element ~ .node__children .node__element {
+        @apply bg-green-400;
       }
 
       &:hover ~ .node__children,
