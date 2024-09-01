@@ -13,10 +13,11 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   adventurePath = APPLICATION_ROUTE_PATH.ADVENTURE;
-  introSound!: HTMLAudioElement;
+  introSound: HTMLAudioElement = new Audio('assets/sounds/intro.wav');
   isMuted = false;
   ngOnInit(): void {
-    this.playIntroSound();
+    // doing this to allow user interact with the page before the sound starts playing just to follow Chrome's autoplay policies. Note that it would still play regardless of the user's interaction.
+    this.toggleMute();
   }
 
   ngOnDestroy(): void {
@@ -26,12 +27,12 @@ export class HomeComponent implements OnInit, OnDestroy {
   private playIntroSound(): void {
     if (!this.introSound) {
       this.introSound = new Audio('assets/sounds/intro.wav');
-      this.introSound.loop = true;
-      this.introSound.addEventListener('ended', () => {
-        this.introSound.play();
-      });
-      this.introSound.load(); // Cache the sound
     }
+    this.introSound.loop = true;
+    this.introSound.addEventListener('ended', () => {
+      this.introSound.play();
+    });
+    this.introSound.load(); // Cache the sound
     this.introSound.play();
   }
 
@@ -49,6 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.introSound.muted = true;
     } else {
       this.introSound.muted = false;
+      this.playIntroSound();
     }
   }
 }

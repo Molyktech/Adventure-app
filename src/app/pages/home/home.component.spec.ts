@@ -26,4 +26,11 @@ describe('HomeComponent', () => {
     const link = fixture.debugElement.query(By.directive(RouterLink));
     expect(link).toBeTruthy();
   });
+
+  it('should render title in a h1 tag', () => {
+    const compiled = fixture.debugElement.nativeElement;
+    expect(compiled.querySelector('h1').textContent).toContain(
+      'Discover Your Perfect Adventure!',
+    );
+  });
 });
