@@ -1,9 +1,9 @@
 <div class="game-page">
   <div
-    [@slideIn]="animationState"
+    [@slideIn]="animationState()"
     class="flex flex-col items-center gap-10 px-5 h-full w-full"
   >
-    @if ((gameEnded$ | async) !== true) {
+    @if (gameEnded() !== true) {
       <div class="flex flex-col items-center gap-10">
         <div class="question-container" role="region" aria-live="polite">
           <h2>{{ currentQuestion.text }}</h2>
@@ -25,7 +25,7 @@
     } @else {
       <div class="flex flex-col items-center gap-y-7 xl:gap-y-40">
         <div class="question-container flex flex-col gap-7">
-          <h2>{{ endMessage }}</h2>
+          <h2>{{ endMessage() }}</h2>
           @if (currentQuestion.choices.length === 0) {
             <app-button
               (click)="restartAdventure()"
@@ -40,7 +40,7 @@
         <app-decision-tree
           [questions]="questions"
           [path]="answeredQuestions$ | async"
-          [questionStartKey]="questionStartKey"
+          [questionStartKey]="questionStartKey()"
         ></app-decision-tree>
       </div>
     }

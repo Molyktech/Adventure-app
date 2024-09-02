@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isEmptyObject = (obj: any): boolean => {
   if (typeof obj !== 'object' || obj === null || obj === undefined) {
-    return false;
+    return true;
   }
 
   return Object.values(obj).every(

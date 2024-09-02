@@ -11,7 +11,9 @@ import {
   DestroyRef,
   OnDestroy,
   OnInit,
+  Signal,
   inject,
+  signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Store } from '@ngxs/store';
@@ -25,9 +27,9 @@ import {
   UpdateAnsweredQuestion,
 } from '../../store/game/game.actions';
 import { GameSelectors } from '../../store/game/game.queries';
+import { isEmptyObject } from '../../utils/helpers';
 import { IChoice, IQuestion } from '../../utils/models/questions';
 import { DecisionTreeComponent } from '../decision-tree/decision-tree.component';
-import { isEmptyObject } from '../../utils/helpers';
 
 @Component({
   selector: 'app-travel-game',
@@ -58,37 +60,31 @@ import { isEmptyObject } from '../../utils/helpers';
 export class TravelGameComponent implements OnInit, OnDestroy {
   private _store = inject(Store);
   private _destroyRef = inject(DestroyRef);
+  // using signals for variables that change the state of the component and can be described as conditions
   questions!: Record<string, IQuestion>;
   clickSound = new Audio('assets/sounds/click.wav');
   currentQuestion!: IQuestion;
-  animationState = 'hidden';
-  gameEnded$: Observable<boolean> = this._store.select(
+  animationState = signal<string>('hidden');
+  endMessage = signal<string>('');
+  questionStartKey: Signal<string> = this._store.selectSignal(
+    GameSelectors.getStartQuestionId,
+  );
+  gameEnded: Signal<boolean> = this._store.selectSignal(
     GameSelectors.getGameStatus,
   );
-  gameEnded = false;
-  endMessage = '';
-  questionStartKey = '';
-  answeredQuestions$!: Observable<string[]>;
+  answeredQuestions$: Observable<string[]> = this._store.select(
+    GameSelectors.getAnsweredQuestions,
+  );
 
   ngOnInit(): void {
     this._store.dispatch(new GetGameQuestions());
-
     this._store
       .select(GameSelectors.getFormattedQuestions)
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe({
         next: (formattedQuestions) => (this.questions = formattedQuestions),
       });
-    this._store
-      .select(GameSelectors.getStartQuestionId)
-      .pipe(takeUntilDestroyed(this._destroyRef))
-      .subscribe({
-        next: (startQuestionId) => {
-          if (startQuestionId) {
-            this.questionStartKey = startQuestionId;
-          }
-        },
-      });
+
     this._store
       .select(GameSelectors.getCurrentQuestion)
       .pipe(takeUntilDestroyed(this._destroyRef))
@@ -101,21 +97,17 @@ export class TravelGameComponent implements OnInit, OnDestroy {
       });
 
     this.startAdventure();
-    this.answeredQuestions$ = this._store.select(
-      GameSelectors.getAnsweredQuestions,
-    );
   }
 
   loadQuestion(id: number | string): void {
     this.currentQuestion = this.questions[id];
-
     if (this.currentQuestion) {
       this._store.dispatch(new SetCurrentQuestion(this.currentQuestion));
       this.triggerAnimation();
       if (this.currentQuestion.choices.length === 0) {
         this._store.dispatch(new SetGameStatus(true));
 
-        this.endMessage = this.currentQuestion.text;
+        this.endMessage.set(this.currentQuestion.text);
       } else {
         this._store.dispatch(new SetGameStatus(false));
       }
@@ -137,21 +129,21 @@ export class TravelGameComponent implements OnInit, OnDestroy {
       // No next question, end of game
       this._store.dispatch(new SetGameStatus(true));
 
-      this.endMessage = 'Thank you for playing!';
+      this.endMessage.set('Thank you for playing!');
     }
   }
 
   triggerAnimation(): void {
-    this.animationState = 'hidden';
+    this.animationState.set('hidden');
     // Trigger change detection cycle for animation
     setTimeout(() => {
-      this.animationState = 'visible';
+      this.animationState.set('visible');
     }, 100); // Slight delay to ensure animation triggers
   }
 
   startAdventure(): void {
     const storedQuestionId = isEmptyObject(this.currentQuestion)
-      ? this.questionStartKey
+      ? this.questionStartKey()
       : this.currentQuestion.id;
 
     this.loadQuestion(storedQuestionId);
@@ -161,7 +153,7 @@ export class TravelGameComponent implements OnInit, OnDestroy {
     //clear answered questions from store
     this._store.dispatch(new ResetAnsweredQuestion());
     // add the game start question to the answered questions
-    this._store.dispatch(new UpdateAnsweredQuestion(this.questionStartKey));
+    this._store.dispatch(new UpdateAnsweredQuestion(this.questionStartKey()));
     // get the currentQuestion and check if it has a value before using it
   }
   restartAdventure(): void {
@@ -169,7 +161,7 @@ export class TravelGameComponent implements OnInit, OnDestroy {
     this._store.dispatch(new SetCurrentQuestion(null));
     this._store.dispatch(new SetGameStatus(false));
 
-    this.loadQuestion(this.questionStartKey);
+    this.loadQuestion(this.questionStartKey());
   }
 
   ngOnDestroy(): void {

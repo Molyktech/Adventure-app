@@ -24,6 +24,12 @@ export class DecisionTreeComponent implements OnInit {
     this.nodes = this.buildQuestionTree(this.questions);
   }
 
+  /**
+   * Builds a decision tree based on the provided questions.
+   *
+   * @param questions - A record of questions, where the key is the question key and the value is the question object.
+   * @returns An Object that contains the questions and all potential choices as well as the choices the user made.
+   */
   buildQuestionTree(questions: Record<string, IQuestion>): IMappedQuestion {
     const startQuestion = questions[this.questionStartKey];
 

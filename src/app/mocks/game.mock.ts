@@ -273,3 +273,46 @@ export const MOCK_GAME_STATE: GameStateModel = {
   gameEnded: false,
   startQuestionId: QUESTIONS_MOCK.startId,
 };
+export const TEST_MOCK_QUESTIONS = {
+  start: {
+    id: 'start',
+    text: 'Start Question?',
+    choices: [
+      { label: 'Choice 1', nextQuestionId: 'next1' },
+      { label: 'Choice 2', nextQuestionId: 'next2' },
+    ],
+  },
+  next1: {
+    id: 'next1',
+    text: 'Next Question 1?',
+    choices: [],
+  },
+  next2: {
+    id: 'next2',
+    text: 'Next Question 2?',
+    choices: [],
+  },
+};
+
+export const TEST_MAPPED_MOCKED_QUESTIONS = {
+  id: 'start',
+  text: 'Start Question?',
+  choices: [
+    {
+      id: 'next1',
+      text: 'Next Question 1?',
+      label: 'Choice 1',
+      questionId: 'start-next1',
+      nextQuestionId: 'next1',
+      choices: [],
+    },
+    {
+      id: 'next2',
+      text: 'Next Question 2?',
+      label: 'Choice 2',
+      questionId: 'start-next2',
+      nextQuestionId: 'next2',
+      choices: [],
+    },
+  ],
+};

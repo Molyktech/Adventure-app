@@ -1,252 +1,287 @@
+//eslint-disable-file  @typescript-eslint/no-explicit-any
+import { Signal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TravelGameComponent } from './travel-game.component';
-import { Store } from '@ngxs/store';
-import { MAPPED_QUESTIONS_MOCK, MOCK_GAME_STATE } from '../../mocks/game.mock';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgxsModule, Store } from '@ngxs/store';
 import { of } from 'rxjs';
-import { GetGameQuestions } from '../../store/game/game.actions';
+import { FORMATTED_QUESTIONS, MOCK_GAME_STATE } from '../../mocks/game.mock';
+import {
+  GetGameQuestions,
+  ResetAnsweredQuestion,
+  SetCurrentQuestion,
+  SetGameStatus,
+  UpdateAnsweredQuestion,
+} from '../../store/game/game.actions';
+import { GameSelectors } from '../../store/game/game.queries';
+import { GameState } from '../../store/game/game.state';
+import { isEmptyObject } from '../../utils/helpers';
+import { IQuestion } from '../../utils/models/questions';
+import { TravelGameComponent } from './travel-game.component';
 
 describe('TravelGameComponent', () => {
   let component: TravelGameComponent;
   let fixture: ComponentFixture<TravelGameComponent>;
-  let _store: Store;
-  // let dispatchSpy: jasmine.Spy;
-  let gameStoreSpy: jasmine.SpyObj<Store>;
+  let store: Store;
+  const sampleQuestionWithNoChoices = {
+    start: {
+      id: 'start',
+      text: 'Start Question',
+      choices: [],
+    },
+  };
 
   beforeEach(async () => {
-    gameStoreSpy = jasmine.createSpyObj('Store', [
-      'dispatch',
-      'select',
-      'pipe',
-      'subscribe',
-    ]);
     await TestBed.configureTestingModule({
-      imports: [TravelGameComponent],
-      providers: [{ provide: Store, useValue: gameStoreSpy }],
+      imports: [
+        TravelGameComponent,
+        NgxsModule.forRoot([GameState]),
+        BrowserAnimationsModule,
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TravelGameComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
-    _store = TestBed.inject(Store);
-    _store.reset({
-      ..._store.snapshot(),
+    store = TestBed.inject(Store);
+    store.reset({
+      ...store.snapshot(),
       game: MOCK_GAME_STATE,
     });
-    // dispatchSpy = spyOn(_store, 'dispatch');
-    spyOn(_store, 'select').and.returnValue(of(MAPPED_QUESTIONS_MOCK).pipe());
-    spyOn(_store, 'select').and.returnValue(
-      of(MOCK_GAME_STATE.startQuestionId),
-    );
-    spyOn(_store, 'select').and.returnValue(
-      of(MOCK_GAME_STATE.currentQuestion),
-    );
-    component.answeredQuestions$ = of(MOCK_GAME_STATE.answeredQuestions);
+    // Mock the selectors
+    spyOn(store, 'selectSignal').and.callFake((selector) => {
+      switch (selector) {
+        case GameSelectors.getStartQuestionId:
+          return signal<string>(
+            MOCK_GAME_STATE.startQuestionId,
+          ) as Signal<string>;
+        case GameSelectors.getGameStatus:
+          return signal<boolean>(MOCK_GAME_STATE.gameEnded) as Signal<boolean>;
 
+        default:
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return signal<any>(undefined) as Signal<any>;
+      }
+    });
+
+    spyOn(store, 'select').and.callFake((selector) => {
+      switch (selector) {
+        case GameSelectors.getFormattedQuestions:
+          return of<Record<string, IQuestion>>(FORMATTED_QUESTIONS);
+        case GameSelectors.getCurrentQuestion:
+          return of<IQuestion | null>(MOCK_GAME_STATE.currentQuestion);
+        case GameSelectors.getAnsweredQuestions:
+          return of<string[]>(MOCK_GAME_STATE.answeredQuestions);
+        default:
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          return of<any>(undefined);
+      }
+    });
+
+    // Mock the Audio object
+    spyOn(window, 'Audio').and.returnValue(
+      Object.assign(document.createElement('audio'), {
+        play: jasmine.createSpy('play').and.callFake(() => Promise.resolve()),
+        pause: jasmine.createSpy('pause'),
+      }),
+    );
     fixture.detectChanges();
-  });
-
-  afterEach(() => {
-    component.ngOnDestroy();
   });
 
   it('should create', () => {
-    // dispatchSpy = spyOn(_store, 'dispatch');
-    spyOn(_store, 'dispatch').and.callThrough();
-    spyOn(_store, 'select').and.returnValue(of(MAPPED_QUESTIONS_MOCK).pipe());
-    spyOn(_store, 'select').and.returnValue(
-      of(MOCK_GAME_STATE.startQuestionId),
-    );
-    spyOn(_store, 'select').and.returnValue(
-      of(MOCK_GAME_STATE.currentQuestion),
-    );
-
-    component.ngOnInit();
-
     expect(component).toBeTruthy();
-    expect(_store.dispatch).toHaveBeenCalledWith(new GetGameQuestions());
   });
 
-  // it('should load a question when loadQuestion is called with a valid id', () => {
-  //   const questionId = 'question1';
-  //   const question = { id: questionId };
-  //   spyOn(store, 'dispatch');
-  //   spyOn(component, 'triggerAnimation');
+  describe('TravelGameComponent ngOnInit', () => {
+    it('should dispatch GetGameQuestions and subscribe to selectors', () => {
+      const dispatchSpy = spyOn(store, 'dispatch').and.callThrough();
+      const subscribeSpy = spyOn(component, 'startAdventure').and.callThrough();
 
-  //   component.loadQuestion(questionId);
+      component.ngOnInit();
 
-  //   expect(component.currentQuestion).toEqual(question);
-  //   expect(store.dispatch).toHaveBeenCalledWith(new SetCurrentQuestion(question));
-  //   expect(component.triggerAnimation).toHaveBeenCalled();
-  // });
+      expect(dispatchSpy).toHaveBeenCalledWith(new GetGameQuestions());
+      expect(subscribeSpy).toHaveBeenCalled();
+    });
+  });
 
-  // it('should set game status to true and display end message when loadQuestion is called with a question that has no choices', () => {
-  //   const questionId = 'question2';
-  //   const question = { id: questionId, text: 'End message' };
-  //   spyOn(store, 'dispatch');
+  describe('TravelGameComponent loadQuestion', () => {
+    it('should set currentQuestion and trigger animation', () => {
+      const mockQuestions: Record<string, IQuestion> =
+        sampleQuestionWithNoChoices;
 
-  //   component.loadQuestion(questionId);
+      component.questions = mockQuestions;
 
-  //   expect(component.currentQuestion).toEqual(question);
-  //   expect(component.gameEnded).toBeTrue();
-  //   expect(component.endMessage).toEqual(question.text);
-  //   expect(store.dispatch).toHaveBeenCalledWith(new SetGameStatus(true));
-  // });
+      const dispatchSpy = spyOn(store, 'dispatch');
+      const animationSpy = spyOn(component, 'triggerAnimation');
 
-  // it('should play click sound when selectChoice is called', () => {
-  //   spyOn(component.clickSound, 'play');
-  //   const choice = { nextQuestionId: 'question3' };
-  //   spyOn(store, 'dispatch');
+      component.loadQuestion('start');
 
-  //   component.selectChoice(choice);
+      expect(component.currentQuestion).toEqual(mockQuestions['start']);
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        new SetCurrentQuestion(mockQuestions['start']),
+      );
+      expect(animationSpy).toHaveBeenCalled();
+    });
 
-  //   expect(component.clickSound.play).toHaveBeenCalled();
-  //   expect(store.dispatch).toHaveBeenCalledWith(new UpdateAnsweredQuestion('question2-question3'));
-  // });
+    it('should set game status to true and update endMessage if no choices are available', () => {
+      const mockQuestions: Record<string, IQuestion> =
+        sampleQuestionWithNoChoices;
 
-  // it('should update answered questions and load next question when selectChoice is called with a choice that has a nextQuestionId', () => {
-  //   const choice = { nextQuestionId: 'question3' };
-  //   const nextQuestion = { id: choice.nextQuestionId };
-  //   spyOn(store, 'dispatch');
-  //   spyOn(component, 'loadQuestion');
+      component.questions = mockQuestions;
 
-  //   component.selectChoice(choice);
+      const dispatchSpy = spyOn(store, 'dispatch');
 
-  //   expect(component.currentQuestion).toEqual(nextQuestion);
-  //   expect(store.dispatch).toHaveBeenCalledWith(new UpdateAnsweredQuestion('question2-question3'));
-  //   expect(component.loadQuestion).toHaveBeenCalledWith(choice.nextQuestionId);
-  // });
+      component.loadQuestion('start');
 
-  // it('should set game status to true and display end message when selectChoice is called with a choice that has no nextQuestionId', () => {
-  //   const choice = { nextQuestionId: null };
-  //   spyOn(store, 'dispatch');
+      expect(dispatchSpy).toHaveBeenCalledWith(new SetGameStatus(true));
+      expect(component.endMessage()).toBe('Start Question');
+    });
+  });
+  describe('TravelGameComponent selectChoice', () => {
+    it('should play click sound and load next question if nextQuestionId is provided', () => {
+      const mockCurrentQuestion: IQuestion = {
+        id: 'start',
+        text: 'Start Question?',
+        choices: [{ label: 'Next', nextQuestionId: 'next1' }],
+      };
 
-  //   component.selectChoice(choice);
+      const mockQuestions: Record<string, IQuestion> = {
+        start: mockCurrentQuestion,
+        next1: {
+          id: 'next1',
+          text: 'Next Question 1?',
+          choices: [],
+        },
+      };
 
-  //   expect(component.gameEnded).toBeTrue();
-  //   expect(component.endMessage).toEqual('Thank you for playing!');
-  //   expect(store.dispatch).toHaveBeenCalledWith(new SetGameStatus(true));
-  // });
+      component.questions = mockQuestions;
+      component.currentQuestion = mockCurrentQuestion;
 
-  // it('should trigger animation when triggerAnimation is called', () => {
-  //   component.triggerAnimation();
-  //   expect(component.animationState).toEqual('visible');
-  // });
+      const playSpy = spyOn(component.clickSound, 'play');
+      const loadQuestionSpy = spyOn(component, 'loadQuestion');
 
-  // it('should call loadQuestion with the stored question id when startAdventure is called', () => {
-  //   const storedQuestionId = 'question1';
-  //   spyOn(component, 'loadQuestion');
+      component.selectChoice(mockCurrentQuestion.choices[0]);
 
-  //   component.questionStartKey = storedQuestionId;
-  //   component.startAdventure();
+      expect(playSpy).toHaveBeenCalled();
+      expect(loadQuestionSpy).toHaveBeenCalledWith('next1');
+    });
 
-  //   expect(component.loadQuestion).toHaveBeenCalledWith(storedQuestionId);
-  // });
+    //    it('should end the game if nextQuestionId is not provided', () => {
+    //    const mockCurrentQuestion: IQuestion = {
+    //      id: 'start',
+    //      text: 'Start Question?',
+    //      choices: [{ label: 'End', nextQuestionId: '' }],
+    //    };
 
-  // it('should dispatch actions to update and reset answered questions when updateAndResetAnsweredQuestions is called', () => {
-  //   spyOn(store, 'dispatch');
+    //    component.currentQuestion = mockCurrentQuestion;
 
-  //   component.updateAndResetAnsweredQuestions();
+    //    const dispatchSpy = spyOn(store, 'dispatch');
+    //    fixture.detectChanges();
+    //    component.selectChoice(mockCurrentQuestion.choices[0]);
 
-  //   expect(store.dispatch).toHaveBeenCalledTimes(2);
-  //   expect(store.dispatch).toHaveBeenCalledWith(new ResetAnsweredQuestion());
-  //   expect(store.dispatch).toHaveBeenCalledWith(new UpdateAnsweredQuestion(component.questionStartKey));
-  // });
+    //    expect(dispatchSpy).toHaveBeenCalledWith(new SetGameStatus(true));
+    //    expect(component.endMessage()).toBe('Thank you for playing!');
+    //  });
+  });
+  describe('TravelGameComponent triggerAnimation', () => {
+    it('should set animationState to hidden and then visible after timeout', (done) => {
+      component.triggerAnimation();
+      expect(component.animationState()).toBe('hidden');
 
-  // it('should dispatch actions to reset game status and load start question when restartAdventure is called', () => {
-  //   spyOn(component, 'updateAndResetAnsweredQuestions');
-  //   spyOn(store, 'dispatch');
+      setTimeout(() => {
+        expect(component.animationState()).toBe('visible');
+        done();
+      }, 100);
+    });
+  });
+  describe('TravelGameComponent startAdventure', () => {
+    it('should call loadQuestion with storedQuestionId', () => {
+      const mockCurrentQuestion: IQuestion = {
+        id: 'start',
+        text: 'Start Question?',
+        choices: [],
+      };
 
-  //   component.restartAdventure();
+      component.currentQuestion = mockCurrentQuestion;
+      component.questionStartKey = signal<string>('start');
 
-  //   expect(component.updateAndResetAnsweredQuestions).toHaveBeenCalled();
-  //   expect(store.dispatch).toHaveBeenCalledTimes(3);
-  //   expect(store.dispatch).toHaveBeenCalledWith(new SetCurrentQuestion(null));
-  //   expect(store.dispatch).toHaveBeenCalledWith(new SetGameStatus(false));
-  //   expect(component.loadQuestion).toHaveBeenCalledWith(component.questionStartKey);
-  // });
+      const loadQuestionSpy = spyOn(component, 'loadQuestion');
 
-  // it('should dispatch get game questions action', () => {
-  //   expect(dispatchSpy).toHaveBeenCalled();
-  //   expect(dispatchSpy).toHaveBeenCalledWith(new GetGameQuestions());
-  // });
-  // it('should subscribe to store.select and set questionStartKey', () => {
-  //   const mockStartQuestionId = MOCK_GAME_STATE.startQuestionId;
+      component.startAdventure();
 
-  //   // Mock the store.select call to return an observable
-  //   spyOn(store, 'select').and.returnValue(of(mockStartQuestionId));
+      expect(loadQuestionSpy).toHaveBeenCalledWith('start');
+    });
+  });
+  describe('TravelGameComponent updateAndResetAnsweredQuestions', () => {
+    it('should dispatch ResetAnsweredQuestion and UpdateAnsweredQuestion actions', () => {
+      const dispatchSpy = spyOn(store, 'dispatch');
 
-  //   // Trigger ngOnInit
-  //   component.ngOnInit();
+      component.updateAndResetAnsweredQuestions();
 
-  //   // Check if wraps were correctly set
-  //   expect(component.questionStartKey).toEqual(mockStartQuestionId);
-  // });
+      expect(dispatchSpy).toHaveBeenCalledWith(new ResetAnsweredQuestion());
+      expect(dispatchSpy).toHaveBeenCalledWith(
+        new UpdateAnsweredQuestion('start'),
+      );
+    });
+  });
 
-  // it('should load a question when loadQuestion is called with a valid id', () => {
-  //   const questionId = 'question1';
-  //   component.loadQuestion(questionId);
-  //   expect(component.currentQuestion).toEqual(component.questions[questionId]);
-  // });
+  describe('TravelGameComponent restartAdventure', () => {
+    it('should reset the game and restart the adventure', () => {
+      const resetSpy = spyOn(component, 'updateAndResetAnsweredQuestions');
+      const loadQuestionSpy = spyOn(component, 'loadQuestion');
 
-  // it('should set game status to true and display end message when loadQuestion is called with a question that has no choices', () => {
-  //   const questionId = 'question2';
-  //   component.loadQuestion(questionId);
-  //   expect(component.currentQuestion).toEqual(component.questions[questionId]);
-  //   expect(component.gameEnded).toBeTrue();
-  //   expect(component.endMessage).toEqual(component.currentQuestion.text);
-  // });
+      component.restartAdventure();
 
-  // it('should play click sound when selectChoice is called', () => {
-  //   spyOn(component.clickSound, 'play');
-  //   const choice = { nextQuestionId: 'question3' };
-  //   component.selectChoice(choice);
-  //   expect(component.clickSound.play).toHaveBeenCalled();
-  // });
+      expect(resetSpy).toHaveBeenCalled();
+      expect(loadQuestionSpy).toHaveBeenCalledWith('start');
+    });
+  });
 
-  // it('should update answered questions and load next question when selectChoice is called with a choice that has a nextQuestionId', () => {
-  //   const choice = { nextQuestionId: 'question3' };
-  //   component.selectChoice(choice);
-  //   expect(component.currentQuestion).toEqual(component.questions[choice.nextQuestionId]);
-  // });
+  describe('TravelGameComponent isEmptyObject', () => {
+    it('should return true for an empty object', () => {
+      const obj = {};
+      const result = isEmptyObject(obj);
+      expect(result).toBe(true);
+    });
 
-  // it('should set game status to true and display end message when selectChoice is called with a choice that has no nextQuestionId', () => {
-  //   const choice = { nextQuestionId: null };
-  //   component.selectChoice(choice);
-  //   expect(component.gameEnded).toBeTrue();
-  //   expect(component.endMessage).toEqual('Thank you for playing!');
-  // });
+    it('should return false for a non-empty object', () => {
+      const obj = { key: 'value' };
+      const result = isEmptyObject(obj);
+      expect(result).toBe(false);
+    });
 
-  // it('should trigger animation when triggerAnimation is called', () => {
-  //   component.triggerAnimation();
-  //   expect(component.animationState).toEqual('visible');
-  // });
+    it('should return true for an object with empty string values', () => {
+      const obj = { key: '' };
+      const result = isEmptyObject(obj);
+      expect(result).toBe(true);
+    });
 
-  // it('should call loadQuestion with the stored question id when startAdventure is called', () => {
-  //   spyOn(component, 'loadQuestion');
-  //   component.startAdventure();
-  //   expect(component.loadQuestion).toHaveBeenCalledWith(component.questionStartKey);
-  // });
+    it('should return true for an object with empty array values', () => {
+      const obj = { key: [] };
+      const result = isEmptyObject(obj);
+      expect(result).toBe(true);
+    });
 
-  // it('should dispatch actions to update and reset answered questions when updateAndResetAnsweredQuestions is called', () => {
-  //   spyOn(component._store, 'dispatch');
-  //   component.updateAndResetAnsweredQuestions();
-  //   expect(component._store.dispatch).toHaveBeenCalledTimes(2);
-  //   expect(component._store.dispatch).toHaveBeenCalledWith(new ResetAnsweredQuestion());
-  //   expect(component._store.dispatch).toHaveBeenCalledWith(new UpdateAnsweredQuestion(component.questionStartKey));
-  // });
+    it('should return true for an object with nested empty objects', () => {
+      const obj = { key: { nestedKey: {} } };
+      const result = isEmptyObject(obj);
+      expect(result).toBe(true);
+    });
 
-  // it('should dispatch actions to reset game status and load start question when restartAdventure is called', () => {
-  //   spyOn(component, 'updateAndResetAnsweredQuestions');
-  //   spyOn(component._store, 'dispatch');
-  //   component.restartAdventure();
-  //   expect(component.updateAndResetAnsweredQuestions).toHaveBeenCalled();
-  //   expect(component._store.dispatch).toHaveBeenCalledTimes(3);
-  //   expect(component._store.dispatch).toHaveBeenCalledWith(new SetCurrentQuestion(null));
-  //   expect(component._store.dispatch).toHaveBeenCalledWith(new SetGameStatus(false));
-  //   expect(component.loadQuestion).toHaveBeenCalledWith(component.questionStartKey);
-  // });
+    it('should return true for undefined', () => {
+      const obj = undefined;
+      const result = isEmptyObject(obj);
+      expect(result).toBe(true);
+    });
+  });
 
-  afterEach(() => {
-    fixture.destroy();
+  describe('TravelGameComponent ngOnDestroy', () => {
+    it('should pause the click sound and restart the adventure', () => {
+      const pauseSpy = spyOn(component.clickSound, 'pause');
+      const restartSpy = spyOn(component, 'restartAdventure');
+
+      component.ngOnDestroy();
+
+      expect(pauseSpy).toHaveBeenCalled();
+      expect(restartSpy).toHaveBeenCalled();
+    });
   });
 });
