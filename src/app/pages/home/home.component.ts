@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ButtonComponent } from '../../components/button/button.component';
 import { APPLICATION_ROUTE_PATH } from '../../constants/routes';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { AudioService } from '../../core/services/audio.service';
 
 @Component({
   selector: 'app-home',
@@ -12,45 +13,40 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit, OnDestroy {
+  private _audioService = inject(AudioService);
   adventurePath = APPLICATION_ROUTE_PATH.ADVENTURE;
   introSound: HTMLAudioElement = new Audio('assets/sounds/intro.wav');
-  isMuted = false;
+  private readonly INTRO_SOUND_KEY = 'introSound';
+  isMuted = signal<boolean>(true);
+
   ngOnInit(): void {
-    // doing this to allow user interact with the page before the sound starts playing just to follow Chrome's autoplay policies. Note that it would still play regardless of the user's interaction.
-    this.toggleMute();
+    this._audioService.initAudio(
+      this.INTRO_SOUND_KEY,
+      'assets/sounds/intro.wav',
+      true,
+    );
+  }
+
+  toggleMute(): void {
+    const newMuteState = !this.isMuted();
+    this.isMuted.set(newMuteState);
+    this._audioService.setMute(this.INTRO_SOUND_KEY, newMuteState);
+    if (newMuteState) {
+      this.stopIntroSound();
+    } else {
+      this.startIntroSound();
+    }
+  }
+
+  startIntroSound(): void {
+    this._audioService.playAudio(this.INTRO_SOUND_KEY);
+  }
+
+  stopIntroSound(): void {
+    this._audioService.stopAudio(this.INTRO_SOUND_KEY);
   }
 
   ngOnDestroy(): void {
-    this.stopIntroSound();
-  }
-
-  private playIntroSound(): void {
-    if (!this.introSound) {
-      this.introSound = new Audio('assets/sounds/intro.wav');
-    }
-    this.introSound.loop = true;
-    this.introSound.addEventListener('ended', () => {
-      this.introSound.play();
-    });
-    this.introSound.load(); // Cache the sound
-    this.introSound.play();
-  }
-
-  private stopIntroSound(): void {
-    if (this.introSound) {
-      this.introSound.pause();
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      this.introSound.removeEventListener('ended', () => {});
-    }
-  }
-
-  toggleMute() {
-    this.isMuted = !this.isMuted;
-    if (this.isMuted) {
-      this.introSound.muted = true;
-    } else {
-      this.introSound.muted = false;
-      this.playIntroSound();
-    }
+    this._audioService.destroyAudio(this.INTRO_SOUND_KEY);
   }
 }

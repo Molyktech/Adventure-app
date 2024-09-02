@@ -2,39 +2,37 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, RouterLink } from '@angular/router';
 import { HomeComponent } from './home.component';
 import { By } from '@angular/platform-browser';
+import { MockAudioService } from '../../core/services/audio.service.mock';
+import { AudioService } from '../../core/services/audio.service';
+import { INTRO_SOUND_KEY } from '../../constants/routes';
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
-  let playSpy: jasmine.Spy;
-  let pauseSpy: jasmine.Spy;
+  let audioService: MockAudioService;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [HomeComponent],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: AudioService, useClass: MockAudioService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomeComponent);
     component = fixture.componentInstance;
-    spyOn(window, 'Audio').and.returnValue({
-      load: jasmine.createSpy('load'),
-      addEventListener: jasmine.createSpy('addEventListener'),
-      removeEventListener: jasmine.createSpy('removeEventListener'),
-      loop: false,
-      muted: false,
-    } as unknown as HTMLAudioElement);
-
-    // Saving these as variables for easy reuse
-    playSpy = spyOn(component.introSound, 'play').and.returnValue(
-      Promise.resolve(),
-    );
-
-    //eslint-disable-next-line @typescript-eslint/no-empty-function
-    pauseSpy = spyOn(component.introSound, 'pause').and.callFake(() => {});
+    audioService = TestBed.inject(AudioService) as unknown as MockAudioService;
+    fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and initalize sound', () => {
     expect(component).toBeTruthy();
+    expect(audioService.initAudio).toHaveBeenCalledWith(
+      'introSound',
+      'assets/sounds/intro.wav',
+      true,
+    );
   });
 
   it('should have a link', () => {
@@ -48,31 +46,34 @@ describe('HomeComponent', () => {
       'Discover Your Perfect Adventure!',
     );
   });
-  it('should toggle mute and play/pause the intro sound', () => {
-    // Initially, isMuted is false but after ngOnInit is called it is true so the user interacts with the page before the sound starts playing
-    fixture.detectChanges(); // This triggers ngOnInit
-    expect(component.isMuted).toBeTrue();
 
-    // Toggle mute (which should unmute the sound)
-    component.toggleMute();
-    expect(component.isMuted).toBeFalse();
-    expect(component.introSound.muted).toBeFalse();
-    expect(playSpy).toHaveBeenCalled(); // Expect play to be called
+  it('should toggle isMuted signal and call audio service setMute', () => {
+    spyOn(component, 'stopIntroSound');
+    spyOn(component, 'startIntroSound');
 
-    // Toggle mute again (which should mute the sound)
+    expect(component.isMuted()).toBeTrue();
+    // Since mute is true by default so it should be false after toggle
     component.toggleMute();
-    expect(component.isMuted).toBeTrue();
-    expect(component.introSound.muted).toBeTrue();
+    expect(component.isMuted()).toBeFalse();
+    expect(audioService.setMute).toHaveBeenCalledWith('introSound', false);
+    expect(component.startIntroSound).toHaveBeenCalled();
+    expect(component.stopIntroSound).not.toHaveBeenCalled();
+
+    // Toggle again
+    component.toggleMute();
+    expect(component.isMuted()).toBeTrue();
+    expect(audioService.setMute).toHaveBeenCalledWith('introSound', true);
+    expect(component.stopIntroSound).toHaveBeenCalled();
+    expect(component.startIntroSound).toHaveBeenCalledTimes(1); //Called that first time
   });
 
-  it('should stop the intro sound on component destroy', () => {
-    //eslint-disable-next-line @typescript-eslint/no-empty-function
-    spyOn(component.introSound, 'removeEventListener').and.callFake(() => {});
+  it('should play intro sound on user interaction', () => {
+    component.startIntroSound();
+    expect(audioService.playAudio).toHaveBeenCalledWith(INTRO_SOUND_KEY);
+  });
 
-    fixture.detectChanges();
+  it('should stop intro sound on destroy', () => {
     component.ngOnDestroy();
-
-    expect(pauseSpy).toHaveBeenCalled();
-    expect(component.introSound.removeEventListener).toHaveBeenCalled();
+    expect(audioService.destroyAudio).toHaveBeenCalledWith(INTRO_SOUND_KEY);
   });
 });

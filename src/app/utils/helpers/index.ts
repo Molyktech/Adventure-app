@@ -8,6 +8,6 @@ export const isEmptyObject = (obj: any): boolean => {
     (value) =>
       value === '' || // Check for empty string
       (Array.isArray(value) && value.length === 0) || // Check for empty array
-      (typeof value === 'object' && value !== null && isEmptyObject(value)), //
+      (typeof value === 'object' && value !== null && isEmptyObject(value)),
   );
 };

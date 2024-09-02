@@ -19,6 +19,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
 import { ButtonComponent } from '../../components/button/button.component';
+import { DecisionTreeComponent } from '../../components/decision-tree/decision-tree.component';
+import { CLICK_SOUND_KEY } from '../../constants/routes';
+import { AudioService } from '../../core/services/audio.service';
 import {
   GetGameQuestions,
   ResetAnsweredQuestion,
@@ -29,7 +32,6 @@ import {
 import { GameSelectors } from '../../store/game/game.queries';
 import { isEmptyObject } from '../../utils/helpers';
 import { IChoice, IQuestion } from '../../utils/models/questions';
-import { DecisionTreeComponent } from '../decision-tree/decision-tree.component';
 
 @Component({
   selector: 'app-travel-game',
@@ -60,8 +62,11 @@ import { DecisionTreeComponent } from '../decision-tree/decision-tree.component'
 export class TravelGameComponent implements OnInit, OnDestroy {
   private _store = inject(Store);
   private _destroyRef = inject(DestroyRef);
-  // using signals for variables that change the state of the component and can be described as conditions
+  private _audioService = inject(AudioService);
+  private readonly CLICK_SOUND_KEY = CLICK_SOUND_KEY;
+  // Note to self: using signals for variables that change the state of the component and can be described as conditions
   questions!: Record<string, IQuestion>;
+  audioUrl = 'assets/sounds/click.wav';
   clickSound = new Audio('assets/sounds/click.wav');
   currentQuestion!: IQuestion;
   animationState = signal<string>('hidden');
@@ -97,6 +102,7 @@ export class TravelGameComponent implements OnInit, OnDestroy {
       });
 
     this.startAdventure();
+    this._audioService.initAudio(this.CLICK_SOUND_KEY, this.audioUrl, false);
   }
 
   loadQuestion(id: number | string): void {
@@ -115,8 +121,7 @@ export class TravelGameComponent implements OnInit, OnDestroy {
   }
 
   selectChoice(choice: IChoice): void {
-    this.clickSound.play();
-
+    this._audioService.playAudio(this.CLICK_SOUND_KEY);
     this._store.dispatch(
       new UpdateAnsweredQuestion(
         `${this.currentQuestion.id}-${choice.nextQuestionId}`,
@@ -150,11 +155,11 @@ export class TravelGameComponent implements OnInit, OnDestroy {
   }
 
   updateAndResetAnsweredQuestions() {
-    //clear answered questions from store
+    // Clear answered questions from store
     this._store.dispatch(new ResetAnsweredQuestion());
-    // add the game start question to the answered questions
+    // Add the game start question to the answered questions
     this._store.dispatch(new UpdateAnsweredQuestion(this.questionStartKey()));
-    // get the currentQuestion and check if it has a value before using it
+    // Det the currentQuestion and check if it has a value before using it
   }
   restartAdventure(): void {
     this.updateAndResetAnsweredQuestions();
@@ -165,7 +170,7 @@ export class TravelGameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.clickSound.pause();
+    this._audioService.stopAudio(this.CLICK_SOUND_KEY);
     this.restartAdventure();
   }
 }

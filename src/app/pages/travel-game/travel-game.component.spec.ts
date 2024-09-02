@@ -1,4 +1,4 @@
-//eslint-disable  @typescript-eslint/no-explicit-any
+/* eslint  @typescript-eslint/no-explicit-any: 0*/
 /* eslint @typescript-eslint/no-empty-function: 0 */
 import { Signal, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
@@ -19,12 +19,16 @@ import { GameState } from '../../store/game/game.state';
 import { isEmptyObject } from '../../utils/helpers';
 import { IQuestion } from '../../utils/models/questions';
 import { TravelGameComponent } from './travel-game.component';
+import { AudioService } from '../../core/services/audio.service';
+import { MockAudioService } from '../../core/services/audio.service.mock';
+import { CLICK_SOUND_KEY } from '../../constants/routes';
 
 describe('TravelGameComponent', () => {
   let component: TravelGameComponent;
   let fixture: ComponentFixture<TravelGameComponent>;
   let store: Store;
-  // const audioUrl = 'assets/sounds/click.wav';
+  let audioService: MockAudioService;
+  const audioUrl = 'assets/sounds/click.wav';
 
   const sampleQuestionWithNoChoices = {
     start: {
@@ -41,6 +45,7 @@ describe('TravelGameComponent', () => {
         NgxsModule.forRoot([GameState]),
         BrowserAnimationsModule,
       ],
+      providers: [{ provide: AudioService, useClass: MockAudioService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TravelGameComponent);
@@ -61,7 +66,6 @@ describe('TravelGameComponent', () => {
           return signal<boolean>(MOCK_GAME_STATE.gameEnded) as Signal<boolean>;
 
         default:
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return signal<any>(undefined) as Signal<any>;
       }
     });
@@ -75,25 +79,22 @@ describe('TravelGameComponent', () => {
         case GameSelectors.getAnsweredQuestions:
           return of<string[]>(MOCK_GAME_STATE.answeredQuestions);
         default:
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return of<any>(undefined);
       }
     });
 
-    // Mock the Audio object
-    spyOn(window, 'Audio').and.returnValue(
-      Object.assign(document.createElement('audio'), {
-         
-        play: jasmine.createSpy('play').and.callFake(() => Promise.resolve()),
-         
-        pause: jasmine.createSpy('pause').and.callFake(() => {}),
-      }),
-    );
+    audioService = TestBed.inject(AudioService) as unknown as MockAudioService;
+
     fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+    expect(audioService.initAudio).toHaveBeenCalledWith(
+      CLICK_SOUND_KEY,
+      audioUrl,
+      false,
+    );
   });
 
   describe('TravelGameComponent ngOnInit', () => {
@@ -161,12 +162,10 @@ describe('TravelGameComponent', () => {
       component.questions = mockQuestions;
       component.currentQuestion = mockCurrentQuestion;
 
-      // const playSpy = spyOn(component.clickSound, 'play');
       const loadQuestionSpy = spyOn(component, 'loadQuestion');
 
       component.selectChoice(mockCurrentQuestion.choices[0]);
-      // expect(playAudio).toHaveBeenCalledWith(audioUrl, false);
-      // expect(playSpy).toHaveBeenCalled();
+      expect(audioService.playAudio).toHaveBeenCalledWith(CLICK_SOUND_KEY);
       expect(loadQuestionSpy).toHaveBeenCalledWith('next1');
     });
 
@@ -281,13 +280,9 @@ describe('TravelGameComponent', () => {
 
   describe('TravelGameComponent ngOnDestroy', () => {
     it('should pause the click sound and restart the adventure', () => {
-      // const pauseSpy = spyOn(component.clickSound, 'pause');
       const restartSpy = spyOn(component, 'restartAdventure');
-
       component.ngOnDestroy();
-
-      // expect(pauseSpy).toHaveBeenCalled();
-
+      expect(audioService.stopAudio).toHaveBeenCalledWith(CLICK_SOUND_KEY);
       expect(restartSpy).toHaveBeenCalled();
     });
   });

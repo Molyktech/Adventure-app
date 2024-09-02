@@ -8,7 +8,7 @@
     }
 
     .node__element {
-      @apply max-w-[250px] min-w-36 bg-white rounded-2xl py-1 px-2 text-sm text-center leading-8 hover:bg-green-400;
+      @apply max-w-[250px] min-w-36 bg-white rounded-2xl py-1 px-2 text-sm text-center leading-8 hover:bg-green-400 cursor-pointer;
       word-wrap: break-word;
 
       &.is-selected {
@@ -56,9 +56,10 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 996px) {
+    @apply justify-center;
     .node__children {
-      @apply flex-wrap;
+      @apply flex flex-col justify-center  items-center;
     }
   }
 }

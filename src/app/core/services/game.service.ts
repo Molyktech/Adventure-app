@@ -6,6 +6,10 @@ import { IGameServerResponse } from '../../utils/models/questions';
   providedIn: 'root',
 })
 export class GameService {
+  /**
+   * Loads the questions for the game.
+   * @returns An observable that emits an IGameServerResponse object.
+   */
   loadQuestions(): Observable<IGameServerResponse> {
     return of(Question);
   }

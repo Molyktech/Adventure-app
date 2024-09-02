@@ -1,6 +1,6 @@
 <div class="absolute top-3 right-28 h-10 w-10">
   <button (click)="toggleMute()" class="flex gap-x-2 items-center">
-    @if (!isMuted) {
+    @if (!isMuted()) {
       <img
         ngSrc="assets/icons/unmute.webp"
         alt="Unmute"
@@ -10,7 +10,7 @@
     } @else {
       <img ngSrc="assets/icons/mute.webp" alt="Mute" width="256" height="256" />
     }
-    <span>{{ isMuted ? "Unmute Sound" : "Mute Sound" }}</span>
+    <span>{{ isMuted() ? "Unmute Sound" : "Mute Sound" }}</span>
   </button>
 </div>
 <div
