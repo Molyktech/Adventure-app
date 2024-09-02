@@ -72,6 +72,7 @@ export class TravelGameComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this._store.dispatch(new GetGameQuestions());
+
     this._store
       .select(GameSelectors.getFormattedQuestions)
       .pipe(takeUntilDestroyed(this._destroyRef))

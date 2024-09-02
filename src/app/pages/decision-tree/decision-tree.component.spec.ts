@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DecisionTreeComponent } from './decision-tree.component';
-import { MOCK_GAME_STATE } from '../../mocks/game.mock';
+import { FORMATTED_QUESTIONS, MOCK_GAME_STATE } from '../../mocks/game.mock';
 
 describe('DecisionTreeComponent', () => {
   let component: DecisionTreeComponent;
@@ -14,7 +14,7 @@ describe('DecisionTreeComponent', () => {
 
     fixture = TestBed.createComponent(DecisionTreeComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('questions', MOCK_GAME_STATE.questions);
+    fixture.componentRef.setInput('questions', FORMATTED_QUESTIONS);
     fixture.componentRef.setInput('path', MOCK_GAME_STATE.answeredQuestions);
     fixture.componentRef.setInput(
       'questionStartKey',

@@ -22,11 +22,11 @@ export class DecisionTreeComponent implements OnInit {
 
   ngOnInit(): void {
     this.nodes = this.buildQuestionTree(this.questions);
-    console.log('nodes', this.nodes);
   }
 
   buildQuestionTree(questions: Record<string, IQuestion>): IMappedQuestion {
     const startQuestion = questions[this.questionStartKey];
+
     const result: IMappedQuestion = {
       id: startQuestion.id,
       text: startQuestion.text,
